@@ -6,15 +6,15 @@ repository=$2
 
 echo "Creating an agent..."
 
-# if [ -z "$prompt" ]; then
-#   echo "A prompt is required"
-#   exit 1
-# fi
+if [ -z "$prompt" ]; then
+  echo "A prompt is required"
+  exit 1
+fi
 
-# if [ -z "$repository" ]; then
-#   echo "A repository is required"
-#   exit 1
-# fi
+if [ -z "$repository" ]; then
+  echo "A repository is required"
+  exit 1
+fi
 
 echo "Working on the Okteto context: $OKTETO_CONTEXT"
 
