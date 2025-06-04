@@ -18,7 +18,7 @@ echo "Creating an agent..."
 
 echo "Working on the Okteto context: $OKTETO_CONTEXT"
 
-/create-agent.js $prompt $repository $OKTETO_TOKEN $OKTETO_CONTEXT
+/create-agent.js "$prompt" "$repository" "$OKTETO_TOKEN" "$OKTETO_CONTEXT"
 if [ $? -ne 0 ]; then
   echo "Failed to create agent"
   exit 1
