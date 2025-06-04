@@ -6,27 +6,25 @@ const { URL } = require('url');
 // Parse command line arguments
 const args = process.argv.slice(2);
 
-if (args.length < 2) {
-  console.error('Usage: node create-agent.js <prompt> <repository>');
+if (args.length < 4) {
+  console.error('Usage: node create-agent.js <prompt> <repository> <okteto-token> <okteto-context');
   console.error('\nExample:');
-  console.error('  node create-okteto-agent.js "Fix the login bug" "https://github.com/okteto/movies"');
+  console.error('  node create-agent.js "Fix the login bug" "https://github.com/okteto/movies" "your-okteto-token" "https://your-oktetocontext.com"');
   process.exit(1);
 }
 
-const [prompt, repository] = args;
+const [prompt, repository, oktetoToken, oktetoContext] = args;
 
 // Check for required environment variable
-const oktetoToken = process.env.OKTETO_TOKEN;
-const oktetoContext = process.env.OKTETO_CONTEXT;
 if (!oktetoToken) {
-  console.error('Error: OKTETO_TOKEN environment variable is not set');
-  console.error('Please set it with: export OKTETO_TOKEN="your-token"');
+  console.error('Error: oktetoToken environment variable is not set');
+  console.error('Please set it with: export oktetoToken="your-token"');
   process.exit(1);
 }
 
 if (!oktetoContext) {
-  console.error('Error: OKTETO_CONTEXT environment variable is not set');
-  console.error('Please set it with: export OKTETO_CONTEXT="https://your-oktetocontext.com"');
+  console.error('Error: oktetoContext environment variable is not set');
+  console.error('Please set it with: export oktetoContext="https://your-oktetocontext.com"');
   process.exit(1);
 }
 

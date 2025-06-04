@@ -9,7 +9,7 @@ if [ -z $prompt ]; then
   exit 1
 fi
 
-OKTETO_TOKEN="$OKTETO_TOKEN" OKTETO_CONTEXT="$OKTETO_CONTEXT" /create-agent.js $prompt $repository
+/create-agent.js $prompt $repository $OKTETO_TOKEN $OKTETO_CONTEXT
 if [ $? -ne 0 ]; then
   echo "Failed to create agent"
   exit 1
