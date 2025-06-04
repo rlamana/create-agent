@@ -9,7 +9,7 @@ if [ -z $prompt ]; then
   exit 1
 fi
 
-./create-agent.js $prompt $repository
+/create-agent.js $prompt $repository
 if [ $? -ne 0 ]; then
   echo "Failed to create agent"
   exit 1
