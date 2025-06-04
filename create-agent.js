@@ -83,7 +83,7 @@ const req = https.request(options, (res) => {
     if (res.statusCode === 200 || res.statusCode === 201) {
       try {
         const response = JSON.parse(data);
-        console.log(data);
+        console.log(JSON.stringify(response.data));
         
         // console.log('\n✅ Agent created successfully!\n');
         // console.log('Agent Details:');

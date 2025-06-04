@@ -31,8 +31,13 @@ ISSUE_NUMBER=$(jq --raw-output .issue.number "$GITHUB_EVENT_PATH")
 REPO_FULL_NAME=$(jq --raw-output .repository.full_name "$GITHUB_EVENT_PATH")
 COMMENT_BODY="✅ Okteto AI agent has been created and is working on this issue."
 
-if [ -z "$repository" ]; then
-  COMMENT_BODY="$COMMENT_BODY. You can chat with the agent here: $CHAT_URL"
+if [ -z "$COMMENT_BODY" ]; then
+  COMMENT_BODY=$(cat <<EOF
+  ✅ Okteto AI agent has been created and is working on this issue.
+
+  You can chat with the agent here: $CHAT_URL
+  EOF
+  )
 fi
 
 curl -s -X POST "$GITHUB_API/repos/$REPO_FULL_NAME/issues/$ISSUE_NUMBER/comments" \
