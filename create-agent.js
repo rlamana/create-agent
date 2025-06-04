@@ -26,6 +26,8 @@ Please work on solving the task described above. After completing the changes:
 2. Use a meaningful commit message.
 3. Create a pull request with a clear and descriptive title and body.
 4. Make sure the pull request references the original GitHub issue #${issueNumber}.
+5. Don't for repositories if you don't have permissions to push changes directly.
+6. Use okteto to build and run the application locally to test your changes before committing.
 `;
 
 // Prepare the Okteto request payload
