@@ -6,27 +6,14 @@ const { URL } = require('url');
 // Parse command line arguments
 const args = process.argv.slice(2);
 
-if (args.length < 4) {
-  console.error('Usage: node create-agent.js <prompt> <repository> <okteto-token> <okteto-context');
+if (args.length < 7) {
+  console.error('Usage: node create-agent.js <prompt> <repository> <okteto-token> <okteto-context> <github-token> <issue-number> <repo-full-name>');
   console.error('\nExample:');
-  console.error('  node create-agent.js "Fix the login bug" "https://github.com/okteto/movies" "your-okteto-token" "https://your-oktetocontext.com"');
+  console.error('  node create-agent.js "Fix the login bug" "https://github.com/okteto/movies" "your-okteto-token" "https://your-oktetocontext.com" "your-github-token" 42 okteto/movies');
   process.exit(1);
 }
 
-const [prompt, repository, oktetoToken, oktetoContext] = args;
-
-// Check for required environment variable
-if (!oktetoToken) {
-  console.error('Error: oktetoToken environment variable is not set');
-  console.error('Please set it with: export oktetoToken="your-token"');
-  process.exit(1);
-}
-
-if (!oktetoContext) {
-  console.error('Error: oktetoContext environment variable is not set');
-  console.error('Please set it with: export oktetoContext="https://your-oktetocontext.com"');
-  process.exit(1);
-}
+const [prompt, repository, oktetoToken, oktetoContext, githubToken, issueNumber, repoFullName] = args;
 
 const expandedPrompt = `
 ${prompt}
@@ -39,23 +26,27 @@ Please work on solving the task described above. After completing the changes:
 4. Make sure the pull request references the original GitHub issue.
 `;
 
-// Prepare the request payload
-const payload = {
+// Prepare the Okteto request payload
+const oktetoPayload = {
   prompt: expandedPrompt,
   repository
 };
 
-// API endpoint
+// Okteto API endpoint
 let apiUrl;
 try {
   apiUrl = new URL('/api/v0/agents', oktetoContext.endsWith('/') ? oktetoContext : oktetoContext + '/');
-}catch {
+} catch {
   console.error('Invalid Okteto context URL:', oktetoContext);
   process.exit(1);
 }
 
-// Request options
-const options = {
+console.log('Creating Okteto agent...');
+console.log(`Repository: ${repository}`);
+console.log(`Prompt: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`);
+
+// 1. Create Okteto agent
+const oktetoReq = https.request({
   hostname: apiUrl.hostname,
   port: 443,
   path: apiUrl.pathname,
@@ -63,16 +54,9 @@ const options = {
   headers: {
     'Authorization': `Bearer ${oktetoToken}`,
     'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(JSON.stringify(payload))
+    'Content-Length': Buffer.byteLength(JSON.stringify(oktetoPayload))
   }
-};
-
-console.log('Creating Okteto agent...');
-console.log(`Repository: ${repository}`);
-console.log(`Prompt: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`);
-
-// Make the API request
-const req = https.request(options, (res) => {
+}, (res) => {
   let data = '';
 
   res.on('data', (chunk) => {
@@ -81,50 +65,111 @@ const req = https.request(options, (res) => {
 
   res.on('end', () => {
     if (res.statusCode === 200 || res.statusCode === 201) {
+      let chatUrl = null;
+
       try {
         const response = JSON.parse(data);
-        console.log(JSON.stringify(response.data));
         
-        // console.log('\n✅ Agent created successfully!\n');
-        // console.log('Agent Details:');
-        // console.log(`- ID: ${response.id || 'N/A'}`);
-        // console.log(`- Status: ${response.status || 'N/A'}`);
+        console.log('\n✅ Agent created successfully!\n');
+        console.log('Agent Details:');
+        console.log(`- ID: ${response.id || 'N/A'}`);
+        console.log(`- Status: ${response.status || 'N/A'}`);
+        if (response.vscode_url) {
+          console.log(`- VS Code URL: ${response.vscode_url}`);
+        }
 
-        // if (response.vscode_url) {
-        //   console.log(`- VS Code URL: ${response.vscode_url}`);
-        // }
-        
-        // console.log('\nFull response:');
-        // console.log(JSON.stringify(response, null, 2));
-        
+        if (response.chat_url) {
+          chatUrl = response.chat_url;
+        }
+
+        console.log('\nFull response:');
+        console.log(JSON.stringify(response, null, 2));
       } catch (error) {
         console.error('Error parsing response:', error.message);
         console.error('Raw response:', data);
         process.exit(1);
       }
+
+      // 2. Comment on GitHub issue
+      let comment = '✅ Okteto AI agent has been created and is working on this issue.';
+      if (chatUrl) {
+        comment += `\n\nYou can chat with the agent here: ${chatUrl}`;
+      }
+
+      const commentPayload = {
+        body: comment
+      };
+
+      let commentApiUrl;
+      try {
+        commentApiUrl = new URL(`/repos/${repoFullName}/issues/${issueNumber}/comments`, 'https://api.github.com/');
+      } catch {
+        console.error('Invalid GitHub comments URL');
+        process.exit(1);
+      }
+
+      const githubReq = https.request({
+        hostname: commentApiUrl.hostname,
+        path: commentApiUrl.pathname,
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${githubToken}`,
+          'User-Agent': 'okteto-agent-script',
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(JSON.stringify(commentPayload))
+        }
+      }, (res) => {
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+
+        res.on('end', () => {
+          if (res.statusCode === 200 || res.statusCode === 201) {
+            console.log(`\n✅ Commented on GitHub issue ${issueNumber} successfully!\n`);
+          } else {
+            console.error(`\n❌ Failed to comment on GitHub issue ${issueNumber}. HTTP Status: ${res.statusCode}`);
+            console.error('Response:', data);
+            try {
+              const errorResponse = JSON.parse(data);
+              if (errorResponse.error || errorResponse.message) {
+                console.error('Error details:', errorResponse.error || errorResponse.message);
+              }
+            } catch {
+              // raw response already printed
+            }
+            process.exit(1);
+          }
+        });
+      });
+
+      githubReq.on('error', (error) => {
+        console.error('GitHub request failed:', error.message);
+        process.exit(1);
+      });
+
+      githubReq.write(JSON.stringify(commentPayload));
+      githubReq.end();
+
     } else {
       console.error(`\n❌ Failed to create agent. HTTP Status: ${res.statusCode}`);
       console.error('Response:', data);
-      
+
       try {
         const errorResponse = JSON.parse(data);
         if (errorResponse.error || errorResponse.message) {
           console.error('Error details:', errorResponse.error || errorResponse.message);
         }
       } catch {
-        // If response is not JSON, it's already printed above
+        // raw response already printed
       }
-      
       process.exit(1);
     }
   });
 });
 
-req.on('error', (error) => {
+oktetoReq.on('error', (error) => {
   console.error('Request failed:', error.message);
   process.exit(1);
 });
 
-// Send the request
-req.write(JSON.stringify(payload));
-req.end();
+oktetoReq.write(JSON.stringify(oktetoPayload));
+oktetoReq.end();
