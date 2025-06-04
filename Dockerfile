@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18.0
 
 COPY create-agent.js /create-agent.js
 RUN chmod +x create-agent.js
