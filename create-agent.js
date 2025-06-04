@@ -65,11 +65,11 @@ const oktetoReq = https.request({
 
   res.on('end', () => {
     if (res.statusCode === 200 || res.statusCode === 201) {
-      let chatUrl = null;
+      let agentID = null;
 
       try {
         const response = JSON.parse(data);
-        
+        agentID = response.id;
         console.log('\n✅ Agent created successfully!\n');
         console.log('Agent Details:');
         console.log(`- ID: ${response.id || 'N/A'}`);
@@ -77,11 +77,6 @@ const oktetoReq = https.request({
         if (response.vscode_url) {
           console.log(`- VS Code URL: ${response.vscode_url}`);
         }
-
-        if (response.chat_url) {
-          chatUrl = response.chat_url;
-        }
-
         console.log('\nFull response:');
         console.log(JSON.stringify(response, null, 2));
       } catch (error) {
@@ -91,10 +86,9 @@ const oktetoReq = https.request({
       }
 
       // 2. Comment on GitHub issue
-      let comment = '✅ Okteto AI agent has been created and is working on this issue.';
-      if (chatUrl) {
-        comment += `\n\nYou can chat with the agent here: ${chatUrl}`;
-      }
+      let comment = `✅ Okteto AI agent has been created and is working on this issue.
+\n\nYou can chat with the agent here: ${oktetoContext}/agents/${agentID}`;
+
 
       const commentPayload = {
         body: comment
