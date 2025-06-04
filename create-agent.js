@@ -16,7 +16,7 @@ if (args.length < 7) {
 const [prompt, repository, oktetoToken, oktetoContext, githubToken, issueNumber, repoFullName] = args;
 
 const expandedPrompt = `
-Issue #${{ issueNumber }}
+Issue #${issueNumber}
 
 ${prompt}
 
