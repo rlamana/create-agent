@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import https from 'https';
 import { URL } from 'url';
 
