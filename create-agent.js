@@ -16,6 +16,8 @@ if (args.length < 7) {
 const [prompt, repository, oktetoToken, oktetoContext, githubToken, issueNumber, repoFullName] = args;
 
 const expandedPrompt = `
+Issue #${{ issueNumber }}
+
 ${prompt}
 
 Please work on solving the task described above. After completing the changes:
@@ -23,7 +25,7 @@ Please work on solving the task described above. After completing the changes:
 1. Commit your modifications to the current branch in the repository.
 2. Use a meaningful commit message.
 3. Create a pull request with a clear and descriptive title and body.
-4. Make sure the pull request references the original GitHub issue.
+4. Make sure the pull request references the original GitHub issue #${issueNumber}.
 `;
 
 // Prepare the Okteto request payload
