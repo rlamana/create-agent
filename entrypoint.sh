@@ -16,7 +16,7 @@ fi
 
 # 1. Create the agent
 echo "Creating an agent..."
-RESPONSE=$(/create-agent.js "$prompt" "$repository" "$OKTETO_TOKEN" "$OKTETO_CONTEXT")
+RESPONSE=$(node /create-agent.js "$prompt" "$repository" "$OKTETO_TOKEN" "$OKTETO_CONTEXT")
 if [ $? -ne 0 ]; then
   echo "Failed to create agent"
   exit 1
