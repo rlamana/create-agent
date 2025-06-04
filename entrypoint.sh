@@ -4,6 +4,8 @@ set -e
 prompt=$1
 repository=$2
 
+echo "Creating an agent..."
+
 if [ -z "$prompt" ]; then
   echo "A prompt is required"
   exit 1
