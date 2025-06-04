@@ -9,6 +9,11 @@ if [ -z $prompt ]; then
   exit 1
 fi
 
+if [ -z $repository ]; then
+  echo "A repository is required"
+  exit 1
+fi
+
 /create-agent.js $prompt $repository $OKTETO_TOKEN $OKTETO_CONTEXT
 if [ $? -ne 0 ]; then
   echo "Failed to create agent"

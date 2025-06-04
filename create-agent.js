@@ -35,7 +35,13 @@ const payload = {
 };
 
 // API endpoint
-const apiUrl = new URL('/api/v0/agents', oktetoContext.endsWith('/') ? oktetoContext : oktetoContext + '/');
+let apiUrl;
+try {
+  apiUrl = new URL('/api/v0/agents', oktetoContext.endsWith('/') ? oktetoContext : oktetoContext + '/');
+}catch {
+  console.error('Invalid Okteto context URL:', oktetoContext);
+  process.exit(1);
+}
 
 // Request options
 const options = {
@@ -50,7 +56,7 @@ const options = {
   }
 };
 
-console.log('Creating Okteto agent...', apiUrl.href);
+console.log('Creating Okteto agent...');
 console.log(`Repository: ${repository}`);
 console.log(`Prompt: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`);
 
