@@ -1,0 +1,16 @@
+name: "Create Okteto AI Agent"
+description: "Creates an Okteto AI agent with a custom prompt and repository"
+inputs:
+  prompt:
+    description: "The prompt/task description for the AI agent"
+    required: true
+  repository:
+    description: 'The GitHub repository URL for the agent to work on'
+    required: false
+    default: ${{ github.event.repository.html_url }}
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.prompt }}
+    - ${{ inputs.repository }}
