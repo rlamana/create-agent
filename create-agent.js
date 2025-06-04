@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import https from 'https';
-import { URL } from 'url';
+const https = require('https');
+const { URL } = require('url');
 
 // Parse command line arguments
 const args = process.argv.slice(2);
