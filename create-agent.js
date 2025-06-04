@@ -28,7 +28,7 @@ if (!oktetoContext) {
   process.exit(1);
 }
 
-const expandedPrompt = ```
+const expandedPrompt = `
 ${prompt}
 
 Please work on solving the task described above. After completing the changes:
@@ -37,7 +37,7 @@ Please work on solving the task described above. After completing the changes:
 2. Use a meaningful commit message.
 3. Create a pull request with a clear and descriptive title and body.
 4. Make sure the pull request references the original GitHub issue.
-```;
+`;
 
 // Prepare the request payload
 const payload = {
