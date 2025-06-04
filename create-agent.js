@@ -83,22 +83,19 @@ const req = https.request(options, (res) => {
     if (res.statusCode === 200 || res.statusCode === 201) {
       try {
         const response = JSON.parse(data);
+        console.log(data);
         
-        console.log('\n✅ Agent created successfully!\n');
-        console.log('Agent Details:');
-        console.log(`- ID: ${response.id || 'N/A'}`);
-        console.log(`- Status: ${response.status || 'N/A'}`);
+        // console.log('\n✅ Agent created successfully!\n');
+        // console.log('Agent Details:');
+        // console.log(`- ID: ${response.id || 'N/A'}`);
+        // console.log(`- Status: ${response.status || 'N/A'}`);
+
+        // if (response.vscode_url) {
+        //   console.log(`- VS Code URL: ${response.vscode_url}`);
+        // }
         
-        if (response.chat_url) {
-          console.log(`- Chat URL: ${response.chat_url}`);
-        }
-        
-        if (response.vscode_url) {
-          console.log(`- VS Code URL: ${response.vscode_url}`);
-        }
-        
-        console.log('\nFull response:');
-        console.log(JSON.stringify(response, null, 2));
+        // console.log('\nFull response:');
+        // console.log(JSON.stringify(response, null, 2));
         
       } catch (error) {
         console.error('Error parsing response:', error.message);
