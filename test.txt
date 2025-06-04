@@ -1,1 +1,0 @@
-OKTETO_TOKEN="E3rxgf3eplAav02mXKMwFl9bVI231MCtAX1EvrCam5ib64qW" OKTETO_CONTEXT="https://okteto.agentfleets.dev.okteto.net/" ./create-agent.js "Fix the login bug" "https://github.com/okteto/movies"
